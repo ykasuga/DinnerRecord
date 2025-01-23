@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile # Node.jsバックエンド用Dockerfile
+    container_name: meal-backend
+    stdin_open: true
+    tty: true
+    ports:
+      - "3000:3000"  # Node.jsサーバーのポート
+    volumes:
+      - ./meals.db:/app/meals.db  # SQLiteデータベースをローカルで管理
+      - ./backend:/app  # バックエンドのコードをローカルで管理
+    networks:
+      - meal-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile # Streamlitフロントエンド用Dockerfile
+    container_name: meal-frontend
+    stdin_open: true
+    tty: true
+    ports:
+      - "8501:8501"  # Streamlitのポート
+    volumes:
+      - ./frontend:/app  # フロントエンドのコードをローカルで管理
+    depends_on:
+      - backend  # フロントエンドはバックエンドが起動した後に動作
+    networks:
+      - meal-network
+
+networks:
+  meal-network:
+    driver: bridge
