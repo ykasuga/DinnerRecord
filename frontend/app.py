@@ -21,7 +21,7 @@ weekday_mapping = {
 
 # 晩御飯の記録
 def record_meal():
-    st.header("晩御飯晩御飯を記録")
+    st.header("晩御飯を記録")
 
     url_add_meal = f"{BASE_URL}/add-meal"
     url_all_meals = f"{BASE_URL}/all-meals"
@@ -76,34 +76,33 @@ def display_weekly_meals():
     start_date = st.date_input("週の開始日を選んでください", value=date.today() - timedelta(days=6), min_value=date(2020, 1, 1))
     start_date_str = start_date.strftime('%Y-%m-%d')
 
-    if st.button("記録を表示"):
-        try:
-            # 一週間分の記録を取得
-            response = requests.get(f"{BASE_URL}/meals-week", params={"startDate": start_date_str})
-            if response.status_code == 200:
-                meals = response.json().get("meals", [])
-                if meals:
-                    # データをテーブル形式に変換
-                    table_data = pd.DataFrame(meals)
-                    table_data.rename(columns={"date": "日付", "menu": "晩御飯"}, inplace=True)
+    try:
+        # 一週間分の記録を取得
+        response = requests.get(f"{BASE_URL}/meals-week", params={"startDate": start_date_str})
+        if response.status_code == 200:
+            meals = response.json().get("meals", [])
+            if meals:
+                # データをテーブル形式に変換
+                table_data = pd.DataFrame(meals)
+                table_data.rename(columns={"date": "日付", "menu": "晩御飯"}, inplace=True)
 
-                    # 曜日情報を追加（日本語の漢字一文字で）
-                    table_data["曜日"] = table_data["日付"].apply(
-                        lambda x: weekday_mapping[datetime.strptime(x, '%Y-%m-%d').strftime('%A')]
-                    )
+                # 曜日情報を追加（日本語の漢字一文字で）
+                table_data["曜日"] = table_data["日付"].apply(
+                    lambda x: weekday_mapping[datetime.strptime(x, '%Y-%m-%d').strftime('%A')]
+                )
 
-                    # 晩御飯をカンマ区切りでまとめる（同じ日付のものを1行にする）
-                    table_data = table_data.groupby(["日付", "曜日"])["晩御飯"].apply(", ".join).reset_index()
+                # 晩御飯をカンマ区切りでまとめる（同じ日付のものを1行にする）
+                table_data = table_data.groupby(["日付", "曜日"])["晩御飯"].apply(", ".join).reset_index()
 
-                    # テーブル表示
-                    st.subheader(f"{start_date_str} から 1週間分の記録")
-                    st.table(table_data)
-                else:
-                    st.info("記録が見つかりませんでした。")
+                # テーブル表示
+                st.subheader(f"{start_date_str} から 1週間分の記録")
+                st.table(table_data)
             else:
-                st.error(f"記録の取得に失敗しました: {response.json().get('error', 'Unknown error')}")
-        except requests.exceptions.RequestException as e:
-            st.error(f"リクエストの送信中にエラーが発生しました: {e}")
+                st.info("記録が見つかりませんでした。")
+        else:
+            st.error(f"記録の取得に失敗しました: {response.json().get('error', 'Unknown error')}")
+    except requests.exceptions.RequestException as e:
+        st.error(f"リクエストの送信中にエラーが発生しました: {e}")
 
 def display_menu_counts():
     st.header("過去の晩御飯")
