@@ -19,9 +19,9 @@ weekday_mapping = {
     "Sunday": "日"
 }
 
-# メニューの記録
+# 晩御飯の記録
 def record_meal():
-    st.header("晩御飯メニューを記録")
+    st.header("晩御飯晩御飯を記録")
 
     url_add_meal = f"{BASE_URL}/add-meal"
     url_all_meals = f"{BASE_URL}/all-meals"
@@ -33,19 +33,19 @@ def record_meal():
     # Display existing menu for the selected date
     existing_meals = get_meals_for_date(url_get_meals_for_date, selected_date)
     if existing_meals:
-        st.subheader(f"{selected_date.strftime('%Y-%m-%d')} の既存メニュー")
+        st.subheader(f"{selected_date.strftime('%Y-%m-%d')} の既存晩御飯")
         for meal in existing_meals:
-            st.write(f"メニュー: {meal['menu']}")
+            st.write(f"晩御飯: {meal['menu']}")
     else:
-        st.subheader(f"{selected_date.strftime('%Y-%m-%d')} の既存メニュー")
-        st.write("メニューはありません")
+        st.subheader(f"{selected_date.strftime('%Y-%m-%d')} の既存晩御飯")
+        st.write("晩御飯はありません")
 
     selected_menu, new_menu = get_menu_selection(menu_options)
 
     if st.button("記録"):
         submit_meal(url_add_meal, selected_date, selected_menu, new_menu)
 
-# メニューの記録削除機能
+# 晩御飯の記録削除機能
 def delete_meals():
     st.header("晩御飯の記録削除")
 
@@ -85,15 +85,15 @@ def display_weekly_meals():
                 if meals:
                     # データをテーブル形式に変換
                     table_data = pd.DataFrame(meals)
-                    table_data.rename(columns={"date": "日付", "menu": "メニュー"}, inplace=True)
+                    table_data.rename(columns={"date": "日付", "menu": "晩御飯"}, inplace=True)
 
                     # 曜日情報を追加（日本語の漢字一文字で）
                     table_data["曜日"] = table_data["日付"].apply(
                         lambda x: weekday_mapping[datetime.strptime(x, '%Y-%m-%d').strftime('%A')]
                     )
 
-                    # メニューをカンマ区切りでまとめる（同じ日付のものを1行にする）
-                    table_data = table_data.groupby(["日付", "曜日"])["メニュー"].apply(", ".join).reset_index()
+                    # 晩御飯をカンマ区切りでまとめる（同じ日付のものを1行にする）
+                    table_data = table_data.groupby(["日付", "曜日"])["晩御飯"].apply(", ".join).reset_index()
 
                     # テーブル表示
                     st.subheader(f"{start_date_str} から 1週間分の記録")
@@ -106,7 +106,7 @@ def display_weekly_meals():
             st.error(f"リクエストの送信中にエラーが発生しました: {e}")
 
 def display_menu_counts():
-    st.header("過去のメニュー")
+    st.header("過去の晩御飯")
 
     url_menu_counts = f"{BASE_URL}/menu-counts"
 
@@ -114,23 +114,23 @@ def display_menu_counts():
         menu_counts = get_menu_counts(url_menu_counts)
         if menu_counts:
             df = pd.DataFrame(menu_counts)
-            df.columns = ["メニュー", "記録回数"]
+            df.columns = ["晩御飯", "記録回数"]
             st.table(df)
         else:
-            st.info("メニューが見つかりませんでした。")
+            st.info("晩御飯が見つかりませんでした。")
     except requests.exceptions.RequestException as e:
-        st.error(f"メニューの取得中にエラーが発生しました: {e}")
+        st.error(f"晩御飯の取得中にエラーが発生しました: {e}")
 
 # Streamlitのレイアウト
 def main():
     st.sidebar.title("晩御飯記録アプリ")
-    page = st.sidebar.radio("メニュー", ["メニューを記録", "記録の表示", "過去のメニュー", "記録の削除"])
+    page = st.sidebar.radio("おしながき", ["晩御飯を記録", "記録の表示", "過去の晩御飯", "記録の削除"])
 
-    if page == "メニューを記録":
+    if page == "晩御飯を記録":
         record_meal()
     elif page == "記録の表示":
         display_weekly_meals()
-    elif page == "過去のメニュー":
+    elif page == "過去の晩御飯":
         display_menu_counts()
     elif page == "記録の削除":
         delete_meals()
