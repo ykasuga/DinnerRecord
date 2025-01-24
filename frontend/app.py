@@ -105,16 +105,33 @@ def display_weekly_meals():
         except requests.exceptions.RequestException as e:
             st.error(f"リクエストの送信中にエラーが発生しました: {e}")
 
+def display_menu_counts():
+    st.header("過去のメニュー")
+
+    url_menu_counts = f"{BASE_URL}/menu-counts"
+
+    try:
+        menu_counts = get_menu_counts(url_menu_counts)
+        if menu_counts:
+            df = pd.DataFrame(menu_counts)
+            df.columns = ["メニュー", "記録回数"]
+            st.table(df)
+        else:
+            st.info("メニューが見つかりませんでした。")
+    except requests.exceptions.RequestException as e:
+        st.error(f"メニューの取得中にエラーが発生しました: {e}")
+
 # Streamlitのレイアウト
 def main():
     st.sidebar.title("晩御飯記録アプリ")
-    page = st.sidebar.radio("メニュー", ["メニューを記録", "記録の表示", "記録の削除"])
+    page = st.sidebar.radio("メニュー", ["メニューを記録", "記録の表示", "過去のメニュー", "記録の削除"])
 
     if page == "メニューを記録":
         record_meal()
     elif page == "記録の表示":
-        # view_meals()
         display_weekly_meals()
+    elif page == "過去のメニュー":
+        display_menu_counts()
     elif page == "記録の削除":
         delete_meals()
 

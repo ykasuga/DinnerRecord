@@ -56,3 +56,14 @@ def get_meals_for_date(url, selected_date):
     except requests.exceptions.RequestException:
         st.error("メニューを取得できませんでした。")
         return []
+
+def get_menu_counts(url):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json().get("menu_counts", [])
+        else:
+            return []
+    except requests.exceptions.RequestException:
+        st.error("メニューのカウントを取得できませんでした。")
+        return []

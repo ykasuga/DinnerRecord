@@ -127,6 +127,15 @@ app.delete('/delete-meals', (req, res) => {
   });
 });
 
+app.get('/menu-counts', (req, res) => {
+  db.all("SELECT ml.menu, COUNT(dl.menu_id) as count FROM dinner_log dl JOIN menu_list ml ON dl.menu_id = ml.id GROUP BY ml.menu ORDER BY count DESC", (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to fetch menu counts' });
+    }
+    res.status(200).json({ menu_counts: rows });
+  });
+});
+
 // Close the database connection when the server is shutting down
 process.on('SIGINT', () => {
   db.close((err) => {
